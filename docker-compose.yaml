@@ -1,0 +1,39 @@
+version: "3.7"
+services:
+  bitwarden-rs:
+    container_name: bitwarden-rs
+    image: bitwardenrs/server:latest
+    volumes:
+      - ./bw-data/:/data/
+    ports:
+      - 3012:3012
+    env_file:
+      - .env
+
+  nginx-proxy:
+    container_name: nginx-proxy
+    image: jwilder/nginx-proxy:latest
+    volumes:
+      - certs:/etc/nginx/certs
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    ports:
+      - 80:80
+      - 443:443
+
+  nginx-proxy-letsencrypt:
+    container_name: nginx-proxy-letsencrypt
+    image: jrcs/letsencrypt-nginx-proxy-companion:latest
+    volumes:
+      - certs:/etc/nginx/certs
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    env_file:
+      - .env
+
+volumes:
+  certs:
+  vhost:
+  html:
